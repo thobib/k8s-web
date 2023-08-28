@@ -1,0 +1,148 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:latest
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: nginx-config
+          mountPath: /usr/share/nginx/html
+      volumes:
+      - name: nginx-config
+        configMap:
+          name: nginx-configmap
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-configmap
+data:
+  index.html: |
+    <html>
+    <head>
+      <title>Webpage Nginx</title>
+    </head>
+    <body>
+      <h1>Example webpage index.html</h1>
+    </body>
+    </html>
+  lulus.html: |
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>Portofolio Landing Page</title>
+      <style>
+        body {
+          margin: 0;
+          padding: 0;
+          font-family: Arial, sans-serif;
+        }
+        
+        .navbar {
+          background-color: rgba(0, 0, 0, 0.5);
+          position: absolute;
+          top: 0;
+          right: 0;
+          padding: 10px;
+          z-index: 1;
+        }
+        
+        .navbar ul {
+          list-style-type: none;
+          margin: 0;
+          padding: 0;
+          text-align: center;
+        }
+        
+        .navbar li {
+          display: inline-block;
+          margin-right: 10px;
+        }
+        
+        .navbar a {
+          color: #fff;
+          text-decoration: none;
+          padding: 5px 10px;
+          border-radius: 5px;
+          font-size: 18px;
+        }
+        
+        .navbar a:hover {
+          background-color: #fff;
+          color: #333;
+        }
+        
+        .container {
+          background-image: url('https://images.unsplash.com/photo-1682687220742-aba13b6e50ba?ixlib=rb-4.0.3&q=85&fm=jpg&crop=entropy&cs=srgb&dl=neom-gOqBe7ropxM-unsplash.jpg');
+          background-size: cover;
+          background-position: center;
+          height: calc(100vh - 40px);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          text-align: center;
+        }
+        
+        .content {
+          background-color: rgba(255, 255, 255, 0.7);
+          padding: 20px;
+          border-radius: 10px;
+        }
+        
+        h1 {
+          font-size: 36px;
+          color: #333;
+          margin-bottom: 20px;
+        }
+        
+        p {
+          font-size: 18px;
+          color: #666;
+          margin-bottom: 10px;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="navbar">
+        <ul>
+          <li><a href="#">Home</a></li>
+          <li><a href="#">About</a></li>
+          <li><a href="#">Portfolio</a></li>
+          <li><a href="#">Contact</a></li>
+        </ul>
+      </div>
+      <div class="container">
+        <div class="content">
+          <h1>Thobib Khoirul Annas</h1>
+          <p>This is a Website for Benchmark of Openlitespeed And Nginx.</p>
+          <p>Wish You A Beautiful Day</p>
+        </div>
+      </div>
+    </body>
+    </html>
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-service
+spec:
+  selector:
+    app: nginx
+  ports:
+  - name: http
+    port: 80
+    targetPort: 80
+  type: LoadBalancer
